@@ -1,0 +1,24 @@
+{
+  "name": "baidumaplib",
+  "version": "1.0.0",
+  "description": "baidu map lib extention",
+  "main": "Map.js",
+  "scripts": {
+    "test": "npm run dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lyj289/BaiduMapLib.git"
+  },
+  "keywords": [
+    "map",
+    "baidumap",
+    "lib"
+  ],
+  "author": "jearylee",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lyj289/BaiduMapLib/issues"
+  },
+  "homepage": "https://github.com/lyj289/BaiduMapLib#readme"
+}
