@@ -1,6 +1,5 @@
 /**
  * BMap.Layer
- * @author liyujian <liyujian@baidu.com>
  */
 
 BMap.Layer = function Layer(map, name) {

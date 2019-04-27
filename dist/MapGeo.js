@@ -1,3 +1,8 @@
+/* @preserve
+ * MapGeo 1.0.3, baidu map lib extention, for geo. https://github.com/lyj289/BaiduMapLib#readme
+ * @author jearylee 
+ */
+
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
     typeof define === 'function' && define.amd ? define(factory) :
@@ -6,7 +11,6 @@
 
     /**
      * BMap.Layer
-     * @author liyujian <liyujian@baidu.com>
      */
     BMap.Layer = function Layer(map, name) {
       this.overlays = [];
@@ -32,7 +36,6 @@
 
     /**
      * Util
-     * @author liyujian <liyujian@baidu.com>
      */
     function addEvent(overlay, option) {
       var onclick = option.onclick,
@@ -70,7 +73,6 @@
 
     /**
      * BMap.Layer
-     * @author liyujian <liyujian@baidu.com>
      */
     /**
      * 开启双击删除操作
@@ -147,7 +149,6 @@
 
     /**
      * BMap.Render
-     * @author liyujian <liyujian@baidu.com>
      */
     BMap.RenderMapV = function RenderMapV(map, data) {
       if (!mapv) {

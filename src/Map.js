@@ -1,6 +1,5 @@
 /**
  * util for BMap
- * @author liyujian <liyujian@baidu.com>
  */
 import {addEvent} from './Util.js'
 

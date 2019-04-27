@@ -1,6 +1,6 @@
 {
   "name": "MapGeo",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "baidu map lib extention, for geo",
   "main": "index.js",
   "scripts": {

@@ -1,6 +1,5 @@
 /**
  * BMap.Layer
- * @author liyujian <liyujian@baidu.com>
  */
 
 import {addEvent} from './Util.js'

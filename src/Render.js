@@ -1,6 +1,5 @@
 /**
  * BMap.Render
- * @author liyujian <liyujian@baidu.com>
  */
 
 BMap.RenderMapV = function RenderMapV(map, data) {

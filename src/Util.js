@@ -1,6 +1,5 @@
 /**
  * Util
- * @author liyujian <liyujian@baidu.com>
  */
 
 function addEvent(overlay, option) {
