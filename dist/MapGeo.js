@@ -106,7 +106,7 @@
      */
 
 
-    BMap.Overlay.prototype.toGeoJson = function () {
+    BMap.Overlay.prototype.toGeoJSON = function () {
       var geom = {
         "type": "",
         "coordinates": []

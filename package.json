@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "",
-    "dev": "rollup -c",
+    "build": "rollup -c",
     "mini": "rollup -c && uglifyjs dist/MapGeo.js -c -m -o dist/MapGeo.min.js"
   },
   "repository": {

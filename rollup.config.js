@@ -5,7 +5,7 @@ export default {
 	input: 'index.js',
     output: {
         name: 'MapGeo',
-        file: 'build/MapGeo.js',
+        file: 'dist/MapGeo.js',
         format: 'umd'
     },
     plugins: [
