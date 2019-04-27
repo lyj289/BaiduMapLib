@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+    body, html,#allmap {width: 100%;height: 100%;overflow: hidden;margin:0;font-family:"微软雅黑";}
+    #btndiv{
+      position: absolute;
+      bottom: 10px;
+      left: 40px;
+      width: 300px;
+      height: 100px;
+    }
+    .btn {
+        display: inline-block;
+        padding: 4px 10px;
+        margin-bottom: 0;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.42857143;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        cursor: pointer;
+        background-image: none;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    </style>
+    <script type="text/javascript" src="https://api.map.baidu.com/api?v=3.0&ak=0C62f9f0ee027b6052dfa35b0f38b61a&s=1"></script>
+    <script type="text/javascript" src="https://mapv.baidu.com/build/mapv.js"></script>
+    <script type="text/javascript" src="../dist/MapGeo.min.js?v1"></script>
+    <title>示例</title>
+</head>
+<body>
+    <div id="allmap"></div>
+    <div id="btndiv">
+       <button class="btn" onclick="addPoint()">加点</button>
+       <button class="btn" onclick="addLine()">加线</button>
+       <button class="btn" onclick="addArea()">加面</button>
+    </div>
+</body>
+</html>
+<script type="text/javascript">
+  var map = new BMap.Map("allmap");
+  map.centerAndZoom(new BMap.Point(114.25846,30.594189), 14); 
+  map.enableScrollWheelZoom(true);
+
+  function addPoint(){
+    map.point([114.25846,30.594189])
+  }
+  function addLine(){
+    map.polyline([[114.25846,30.594189],[114.26846,30.584189]])
+
+  }
+  function addArea(){
+    fetch('../data/line.json').then(res => {
+      return res.json();
+    }).then(res => {
+      let geo = []
+      res.forEach((k,index) => {
+          geo = geo.concat(k.geo);
+      })
+      let count = 0;
+      geo.forEach(v=>{
+        count += v.geometry.coordinates[0].length
+      })
+      console.log('点数量', count);
+      map.geoJSON(geo, {
+          name: 'area',
+          render: 'mapv',
+      });
+    })
+  }
+</script>
