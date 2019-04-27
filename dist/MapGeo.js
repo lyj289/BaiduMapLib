@@ -466,7 +466,7 @@
       }
 
       if (type === 'Point') {
-        overlay = this.point(coordinatesm, option);
+        overlay = this.point(coordinates, option);
       }
 
       return overlay;

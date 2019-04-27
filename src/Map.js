@@ -174,7 +174,7 @@ BMap.Map.prototype.addFeature = function(feature, option = featureOption) {
         overlay = this.polyline(coordinates, option)
     }
     if (type === 'Point') {
-        overlay = this.point(coordinatesm, option)
+        overlay = this.point(coordinates, option)
     }
     return overlay;
 }
