@@ -1,10 +1,12 @@
 {
-  "name": "baidumaplib",
+  "name": "MapGeo",
   "version": "1.0.0",
-  "description": "baidu map lib extention",
-  "main": "Map.js",
+  "description": "baidu map lib extention, for geo",
+  "main": "index.js",
   "scripts": {
-    "test": "npm run dev"
+    "test": "",
+    "dev": "rollup -c",
+    "mini": "rollup -c && uglifyjs dist/MapGeo.js -c -m -o dist/MapGeo.min.js"
   },
   "repository": {
     "type": "git",
@@ -13,12 +15,22 @@
   "keywords": [
     "map",
     "baidumap",
-    "lib"
+    "lib",
+    "GeoJSON",
+    "MapGeo"
   ],
   "author": "jearylee",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/lyj289/BaiduMapLib/issues"
   },
-  "homepage": "https://github.com/lyj289/BaiduMapLib#readme"
+  "homepage": "https://github.com/lyj289/BaiduMapLib#readme",
+  "devDependencies": {
+    "@babel/core": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
+    "rollup": "^1.10.1",
+    "rollup-plugin-babel": "^4.3.2",
+    "rollup-plugin-node-resolve": "^4.2.3"
+  },
+  "dependencies": {}
 }
