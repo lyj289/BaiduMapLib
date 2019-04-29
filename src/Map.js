@@ -186,11 +186,20 @@ BMap.Map.prototype.addFeature = function(feature, option = featureOption) {
  */
 BMap.Map.prototype.geoJSON = function(geojson, option = featureOption) {
     try {
-        let {render} = option;
+        let {name, render} = option;
         if (render === 'mapv') {
-            let renderer = new BMap.RenderMapV(this, geojson);
-            let overlay = renderer.mapvLayer.canvasLayer;
-            return overlay.addToLayer(option.name);
+            
+            let layer = this.layers[name];
+            let renderer;
+            
+            if (layer) {
+                renderer = layer.render;
+                renderer.update(geojson.splice(_.random(100),100));
+            } else {
+                renderer = new BMap.RenderMapV(this, geojson, option);
+            }
+            
+            return renderer.overlays;
         } else {
             let features = (typeof(geojson) !== 'object') 
                 ? JSON.parse(geojson) : geojson;
@@ -229,6 +238,7 @@ BMap.Map.prototype.geoJSON = function(geojson, option = featureOption) {
         return null;
     }
 }
+
 
 /**
  * get map bound min and max lonlat
