@@ -30,7 +30,7 @@
     </style>
     <script type="text/javascript" src="https://api.map.baidu.com/api?v=3.0&ak=0C62f9f0ee027b6052dfa35b0f38b61a&s=1"></script>
     <script type="text/javascript" src="https://mapv.baidu.com/build/mapv.js"></script>
-    <script type="text/javascript" src="../dist/MapGeo.min.js?v1"></script>
+    <script type="text/javascript" src="../dist/MapGeo.js?v1"></script>
     <title>示例</title>
 </head>
 <body>
@@ -49,6 +49,12 @@
 
   function addPoint(){
     map.point([114.25846,30.594189])
+    map.circle([114.25846,30.594189], {
+      name: 'circle',
+      styleMap: {
+        fillColor:"rgba(0,0,0,0)", 
+      }
+    })
   }
   function addLine(){
     map.polyline([[114.25846,30.594189],[114.26846,30.584189]])

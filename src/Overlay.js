@@ -16,10 +16,12 @@ BMap.Overlay.prototype.enableDoubleClickDel = function() {
  * add overlay to a layer
  * @param {[string]} name name of layer
  */
-BMap.Overlay.prototype.addToLayer = function(name = DEFAULT_FEATURE_NAME) {
+BMap.Overlay.prototype.addToLayer = function(option = {name: DEFAULT_FEATURE_NAME, 
+        alias: ''}) {
+    let {name, alias} = option;
     let layer = this.map.layers[name];
     if (!layer) {
-        layer = new BMap.Layer(this.map, name)
+        layer = new BMap.Layer(this.map, option)
     }
     this.layer = layer;
     layer.add(this);

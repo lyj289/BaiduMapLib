@@ -23,6 +23,15 @@ First version Done!
     + remove
     + clear
 
-- BMap.Render 增加Render，可以指定svg, canvas
+## 1.1.0 (2019-04-29)
+
+### API Add
+
+- Map.js 扩展map实例方法
+    + map.circle 绘圆
+
+- BMap.Layer 
+    + show
+    + hide
 
 by liyujian

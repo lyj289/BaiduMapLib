@@ -92,15 +92,19 @@ BMap.Map.prototype.polygon = function(coordinates, option = featureOption) {
     let points = coordinates[0].map(k => {
         return new BMap.Point(...k) 
     });
+    let optionStyle = option.styleMap;
+    if (option.styleMap.polygon) {
+        optionStyle = option.styleMap.polygon
+    }
     let style = {
         ...styleMap.polygon,
-        ...option.styleMap.polygon
+        ...optionStyle
     }
     let polygon = new BMap.Polygon(points, style);
     this.addOverlay(polygon);
     let {name, prop} = option;
     polygon.prop = prop;
-    polygon.addToLayer(name);
+    polygon.addToLayer(option);
     addEvent(polygon, option)
 
     return polygon;
@@ -116,16 +120,20 @@ BMap.Map.prototype.polyline = function(coordinates, option = featureOption) {
     let points = coordinates.map(k => {
         return new BMap.Point(...k) 
     })
+    let optionStyle = option.styleMap;
+    if (option.styleMap.polyline) {
+        optionStyle = option.styleMap.polyline
+    }
     let style = {
         ...styleMap.polyline,
-        ...option.styleMap.polyline
+        ...optionStyle
     }
     let polyline = new BMap.Polyline(points, style);
     this.addOverlay(polyline);
 
     let {name, prop} = option;
     polyline.prop = prop;
-    polyline.addToLayer(name);
+    polyline.addToLayer(option);
     addEvent(polyline, option);
 
     return polyline;
@@ -139,19 +147,51 @@ BMap.Map.prototype.polyline = function(coordinates, option = featureOption) {
  */
 BMap.Map.prototype.point = function(coordinates, option = featureOption) {
     let point = new BMap.Point(...coordinates);
+    let optionStyle = option.styleMap;
+    if (option.styleMap.point) {
+        optionStyle = option.styleMap.point
+    }
     let style = {
         ...styleMap.point,
-        ...option.styleMap.point
+        ...optionStyle
     }
     let marker = new BMap.Marker(point, style);
     this.addOverlay(marker);
 
-    let {name, prop} = option;
+    let {name, alias, prop} = option;
     marker.prop = prop;
-    marker.addToLayer(name);
+    marker.addToLayer(option);
     addEvent(marker, option);
 
     return marker;
+}
+
+/**
+ * add circle feature
+ * @param  {array} coordinates [lon,lat]
+ * @param  {object} option
+ * @return {BMap.Overlay}             
+ */
+BMap.Map.prototype.circle = function(coordinates, option = featureOption) {
+    let point = new BMap.Point(...coordinates);
+    let optionStyle = option.styleMap;
+    if (option.styleMap.circle) {
+        optionStyle = option.styleMap.circle
+    }
+    let style = {
+        ...styleMap.polygon,
+        ...optionStyle,
+    }
+    let {name, prop, radius} = option;
+
+    var overlay = new BMap.Circle(point, radius, style);
+    this.addOverlay(overlay);
+
+    overlay.prop = prop;
+    overlay.addToLayer(option);
+    addEvent(overlay, option);
+
+    return overlay;
 }
 
 /**
@@ -194,7 +234,7 @@ BMap.Map.prototype.geoJSON = function(geojson, option = featureOption) {
             
             if (layer) {
                 renderer = layer.render;
-                renderer.update(geojson.splice(_.random(100),100));
+                renderer.update(geojson);
             } else {
                 renderer = new BMap.RenderMapV(this, geojson, option);
             }

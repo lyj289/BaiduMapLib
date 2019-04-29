@@ -1,5 +1,5 @@
 /* @preserve
- * MapGeo 1.0.3, baidu map lib extention, for geo. https://github.com/lyj289/BaiduMapLib#readme
+ * MapGeo 1.1.2, baidu map lib extention, for geo. https://github.com/lyj289/BaiduMapLib#readme
  * @author jearylee 
  */
 
@@ -12,15 +12,40 @@
     /**
      * BMap.Layer
      */
-    BMap.Layer = function Layer(map, name) {
+    var uid = 0;
+
+    BMap.Layer = function Layer(map) {
+      var option = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      this.id = uid++;
       this.overlays = [];
-      this.name = name;
+      var name = option.name,
+          alias = option.alias,
+          show = option.show;
+      this.name = name || "Layer".concat(this.id);
+      this.show = show || true;
+
+      if (alias) {
+        this.alias = alias;
+      }
+
       this.map = map;
-      map.layers[name] = this;
+      map.layers[name] = this; // this._proto = BMap.Map.prototype.__proto__;
     };
 
     BMap.Layer.prototype.add = function (overlay) {
       this.overlays.push(overlay);
+    };
+
+    BMap.Layer.prototype.hide = function (overlay) {
+      this.overlays.forEach(function (k) {
+        return k.hide();
+      });
+    };
+
+    BMap.Layer.prototype.show = function (overlay) {
+      this.overlays.forEach(function (k) {
+        return k.show();
+      });
     };
 
     BMap.Layer.prototype.remove = function (overlay) {// TODO
@@ -91,11 +116,16 @@
 
 
     BMap.Overlay.prototype.addToLayer = function () {
-      var name = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : DEFAULT_FEATURE_NAME;
+      var option = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
+        name: DEFAULT_FEATURE_NAME,
+        alias: ''
+      };
+      var name = option.name,
+          alias = option.alias;
       var layer = this.map.layers[name];
 
       if (!layer) {
-        layer = new BMap.Layer(this.map, name);
+        layer = new BMap.Layer(this.map, option);
       }
 
       this.layer = layer;
@@ -150,29 +180,41 @@
     /**
      * BMap.Render
      */
-    BMap.RenderMapV = function RenderMapV(map, data) {
-      if (!mapv) {
-        console.error('At first, needs mapv!');
-        return false;
-      }
-
-      this.overlays = [];
+    BMap.RenderMapV = function RenderMapV(map, data, option) {
       this.type = 'mapv';
       this.map = map;
       this.dataSet = new mapv.DataSet(data);
-      var options = {
-        strokeStyle: 'green',
-        fillStyle: 'rgba(0,0,0,.3)',
-        shadowBlur: 0,
-        methods: {
-          click: null
-        },
-        lineWidth: 3,
-        draw: 'webgl'
-      };
-      this.mapvLayer = new mapv.baiduMapLayer(map, this.dataSet, options);
-      this.mapvLayer.canvasLayer.map = map;
-      this.mapvLayer.canvasLayer.canvas.classList.add('constructMap');
+      var _option = option,
+          name = _option.name,
+          prop = _option.prop,
+          renderOption = _option.renderOption,
+          styleMap = _option.styleMap;
+      option = Object.assign({}, BMap.RenderMapV.DEFAULT_OPTION, renderOption, styleMap);
+      this.layer = new mapv.baiduMapLayer(map, this.dataSet, option);
+      var overlay = this.layer.canvasLayer;
+      overlay.map = map;
+      overlay.addToLayer(name);
+      overlay.layer.render = this;
+      this.overlays = [overlay];
+
+      if (name) {
+        overlay.canvas.classList.add(name);
+      }
+    };
+
+    BMap.RenderMapV.prototype.update = function update(data) {
+      this.dataSet.set(data);
+    };
+
+    BMap.RenderMapV.DEFAULT_OPTION = {
+      strokeStyle: 'green',
+      fillStyle: 'rgba(255,255,255,0.5)',
+      shadowBlur: 0,
+      methods: {
+        click: null
+      },
+      lineWidth: 3,
+      draw: 'simple'
     };
 
     function _typeof(obj) {
@@ -381,15 +423,20 @@
       var points = coordinates[0].map(function (k) {
         return _construct(BMap.Point, _toConsumableArray(k));
       });
+      var optionStyle = option.styleMap;
 
-      var style = _objectSpread({}, styleMap.polygon, option.styleMap.polygon);
+      if (option.styleMap.polygon) {
+        optionStyle = option.styleMap.polygon;
+      }
+
+      var style = _objectSpread({}, styleMap.polygon, optionStyle);
 
       var polygon = new BMap.Polygon(points, style);
       this.addOverlay(polygon);
       var name = option.name,
           prop = option.prop;
       polygon.prop = prop;
-      polygon.addToLayer(name);
+      polygon.addToLayer(option);
       addEvent(polygon, option);
       return polygon;
     };
@@ -406,15 +453,20 @@
       var points = coordinates.map(function (k) {
         return _construct(BMap.Point, _toConsumableArray(k));
       });
+      var optionStyle = option.styleMap;
 
-      var style = _objectSpread({}, styleMap.polyline, option.styleMap.polyline);
+      if (option.styleMap.polyline) {
+        optionStyle = option.styleMap.polyline;
+      }
+
+      var style = _objectSpread({}, styleMap.polyline, optionStyle);
 
       var polyline = new BMap.Polyline(points, style);
       this.addOverlay(polyline);
       var name = option.name,
           prop = option.prop;
       polyline.prop = prop;
-      polyline.addToLayer(name);
+      polyline.addToLayer(option);
       addEvent(polyline, option);
       return polyline;
     };
@@ -431,16 +483,54 @@
 
       var point = _construct(BMap.Point, _toConsumableArray(coordinates));
 
-      var style = _objectSpread({}, styleMap.point, option.styleMap.point);
+      var optionStyle = option.styleMap;
+
+      if (option.styleMap.point) {
+        optionStyle = option.styleMap.point;
+      }
+
+      var style = _objectSpread({}, styleMap.point, optionStyle);
 
       var marker = new BMap.Marker(point, style);
       this.addOverlay(marker);
       var name = option.name,
+          alias = option.alias,
           prop = option.prop;
       marker.prop = prop;
-      marker.addToLayer(name);
+      marker.addToLayer(option);
       addEvent(marker, option);
       return marker;
+    };
+    /**
+     * add circle feature
+     * @param  {array} coordinates [lon,lat]
+     * @param  {object} option
+     * @return {BMap.Overlay}             
+     */
+
+
+    BMap.Map.prototype.circle = function (coordinates) {
+      var option = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : featureOption;
+
+      var point = _construct(BMap.Point, _toConsumableArray(coordinates));
+
+      var optionStyle = option.styleMap;
+
+      if (option.styleMap.circle) {
+        optionStyle = option.styleMap.circle;
+      }
+
+      var style = _objectSpread({}, styleMap.polygon, optionStyle);
+
+      var name = option.name,
+          prop = option.prop,
+          radius = option.radius;
+      var overlay = new BMap.Circle(point, radius, style);
+      this.addOverlay(overlay);
+      overlay.prop = prop;
+      overlay.addToLayer(option);
+      addEvent(overlay, option);
+      return overlay;
     };
     /**
      * add point feature
@@ -486,48 +576,56 @@
       var option = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : featureOption;
 
       try {
-        var render = option.render;
+        var name = option.name,
+            render = option.render;
 
         if (render === 'mapv') {
-          var renderer = new BMap.RenderMapV(this, geojson);
-          var overlay = renderer.mapvLayer.canvasLayer;
-          return overlay.addToLayer(option.name);
+          var layer = this.layers[name];
+          var renderer;
+
+          if (layer) {
+            renderer = layer.render;
+            renderer.update(geojson);
+          } else {
+            renderer = new BMap.RenderMapV(this, geojson, option);
+          }
+
+          return renderer.overlays;
         } else {
           var features = _typeof(geojson) !== 'object' ? JSON.parse(geojson) : geojson;
-
-          var _overlay;
+          var overlay;
 
           if (features.type === 'FeatureCollection') {
-            _overlay = [];
+            overlay = [];
             features.features.forEach(function (k) {
-              _overlay.push(_this.addFeature(k, option));
+              overlay.push(_this.addFeature(k, option));
             });
           }
 
           if (Array.isArray(features)) {
-            _overlay = [];
+            overlay = [];
             features.forEach(function (k) {
-              _overlay.push(_this.addFeature(k, option));
+              overlay.push(_this.addFeature(k, option));
             });
           }
 
           if (features.type === 'Feature') {
-            _overlay = this.addFeature(features, option);
+            overlay = this.addFeature(features, option);
           }
 
           if (features.type === 'Polygon') {
-            _overlay = this.polygon(features.coordinates, option);
+            overlay = this.polygon(features.coordinates, option);
           }
 
           if (features.type === 'LineString') {
-            _overlay = this.polyline(features.coordinates, option);
+            overlay = this.polyline(features.coordinates, option);
           }
 
           if (features.type === 'Point') {
-            _overlay = this.point(features.coordinates, option);
+            overlay = this.point(features.coordinates, option);
           }
 
-          return _overlay;
+          return overlay;
         }
       } catch (error) {
         console.log(error);
