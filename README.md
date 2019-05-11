@@ -1,7 +1,17 @@
 # MapGeo
 Baidu Map Lib 扩展, 主要用来快速加载点线面各种要素
 
-内容说明
+# 安装
+
+nodejs
+
+    npm install mapgeo
+
+or
+
+    <script src='./dist/MapGeo.js'></script>
+
+# 内容说明
 - Map.js 扩展map实例方法
     + map.polyline 绘线
     + map.polygon 绘面
