@@ -13,7 +13,7 @@ function addEvent(overlay, option) {
     
     // 双击删除
     // confirmdel 是否提示
-    if (dbldel) {
+    if (dbldel && !ondblclick) {
         ondblclick = function(e){
             if (confirmdel && confirm('确认删除？')) {
                 this.map.removeOverlay(this)
@@ -26,11 +26,29 @@ function addEvent(overlay, option) {
     }
 
     if (ondblclick && typeof(ondblclick) === 'function') {
-        overlay.addEventListener('dblclick', function (e) {
-            ondblclick.call(this, e)
+        overlay.addEventListener('dblclick', function (event) {
+            ondblclick.call(this, event);
+            stopBubble(event);
         });
     }
 
+}
+
+function getEvent(event) {
+    return window.event || event;
+}
+
+function stopBubble(event) {
+    event = getEvent(event);
+    event.stopPropagation ? event.stopPropagation() : event.cancelBubble = true;
+}
+function preventDefault(event) {
+    event = getEvent(event);
+    if (event.preventDefault) {
+        event.preventDefault();
+    } else {
+        event.returnValue = false;
+    }
 }
 
 export {

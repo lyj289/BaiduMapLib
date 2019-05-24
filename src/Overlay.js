@@ -3,25 +3,34 @@
  */
 
 import {addEvent} from './Util.js'
+const DEFAULT_FEATURE_NAME = 'tmp'
 
 /**
  * 开启双击删除操作
  * @return {[type]} [description]
  */
-BMap.Overlay.prototype.enableDoubleClickDel = function() {
-    addEvent(this, {dblclick: true})
+BMap.Overlay.prototype.enableDoubleClickDel = function(option = {confirmdel: true}) {
+    addEvent(this, {
+        dbldel: true,
+        ...option
+    })
 }
 
 /**
  * add overlay to a layer
- * @param {[string]} name name of layer
+ * @param {Layer | object} Layer or option that has name
  */
 BMap.Overlay.prototype.addToLayer = function(option = {name: DEFAULT_FEATURE_NAME, 
         alias: ''}) {
-    let {name, alias} = option;
-    let layer = this.map.layers[name];
-    if (!layer) {
-        layer = new BMap.Layer(this.map, option)
+    let layer;
+    if (option instanceof BMap.Layer) {
+        layer = option
+    } else {
+        let {name, alias} = option;
+        layer = this.map.layers[name];
+        if (!layer) {
+            layer = new BMap.Layer(this.map, option)
+        }
     }
     this.layer = layer;
     layer.add(this);

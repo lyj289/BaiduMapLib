@@ -15,7 +15,7 @@ BMap.RenderMapV = function RenderMapV(map, data, option) {
     
     let overlay = this.layer.canvasLayer;
     overlay.map = map;
-    overlay.addToLayer(name);
+    overlay.addToLayer({name});
     overlay.layer.render = this;
     this.overlays = [overlay];
 

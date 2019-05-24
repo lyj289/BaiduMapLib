@@ -1,5 +1,5 @@
 /* @preserve
- * MapGeo 1.1.2, baidu map lib extention, for geo. https://github.com/lyj289/BaiduMapLib#readme
+ * mapgeo 1.1.2, baidu map lib extention, for geo. https://github.com/lyj289/BaiduMapLib#readme
  * @author jearylee 
  */
 
@@ -20,9 +20,13 @@
       this.overlays = [];
       var name = option.name,
           alias = option.alias,
-          show = option.show;
+          displayInSwitcher = option.displayInSwitcher;
       this.name = name || "Layer".concat(this.id);
-      this.show = show || true;
+      this.displayInSwitcher = true;
+
+      if ('displayInSwitcher' in option) {
+        this.displayInSwitcher = displayInSwitcher;
+      }
 
       if (alias) {
         this.alias = alias;
@@ -48,7 +52,16 @@
       });
     };
 
-    BMap.Layer.prototype.remove = function (overlay) {// TODO
+    BMap.Layer.prototype.remove = function (overlay) {
+      this.map.removeOverlay(overlay);
+
+      this._updateIndex(overlay);
+    };
+
+    BMap.Layer.prototype._updateIndex = function (overlay) {
+      this.overlays = this.overlays.filter(function (k) {
+        return k !== overlay;
+      });
     };
 
     BMap.Layer.prototype.clear = function () {
@@ -57,164 +70,6 @@
         map.removeOverlay(k);
       });
       this.overlays = [];
-    };
-
-    /**
-     * Util
-     */
-    function addEvent(overlay, option) {
-      var onclick = option.onclick,
-          ondblclick = option.ondblclick,
-          dbldel = option.dbldel,
-          confirmdel = option.confirmdel;
-
-      if (onclick && typeof onclick === 'function') {
-        overlay.addEventListener('click', function (e) {
-          onclick.call(this, e);
-        });
-      } // 双击删除
-      // confirmdel 是否提示
-
-
-      if (dbldel) {
-        ondblclick = function ondblclick(e) {
-          if (confirmdel && confirm('确认删除？')) {
-            this.map.removeOverlay(this);
-            return false;
-          }
-
-          if (!confirmdel) {
-            this.map.removeOverlay(this);
-          }
-        };
-      }
-
-      if (ondblclick && typeof ondblclick === 'function') {
-        overlay.addEventListener('dblclick', function (e) {
-          ondblclick.call(this, e);
-        });
-      }
-    }
-
-    /**
-     * BMap.Layer
-     */
-    /**
-     * 开启双击删除操作
-     * @return {[type]} [description]
-     */
-
-    BMap.Overlay.prototype.enableDoubleClickDel = function () {
-      addEvent(this, {
-        dblclick: true
-      });
-    };
-    /**
-     * add overlay to a layer
-     * @param {[string]} name name of layer
-     */
-
-
-    BMap.Overlay.prototype.addToLayer = function () {
-      var option = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
-        name: DEFAULT_FEATURE_NAME,
-        alias: ''
-      };
-      var name = option.name,
-          alias = option.alias;
-      var layer = this.map.layers[name];
-
-      if (!layer) {
-        layer = new BMap.Layer(this.map, option);
-      }
-
-      this.layer = layer;
-      layer.add(this);
-      return this;
-    };
-    /**
-     * overlay to geojson
-     * @return {object} geojson object
-     */
-
-
-    BMap.Overlay.prototype.toGeoJSON = function () {
-      var geom = {
-        "type": "",
-        "coordinates": []
-      };
-      var feature = {
-        type: 'Feature',
-        properties: {},
-        geometry: geom
-      };
-
-      if (this instanceof BMap.Polygon) {
-        geom.type = 'Polygon';
-        geom.coordinates = [[]];
-        this.getPath().forEach(function (k) {
-          geom.coordinates[0].push([k.lng, k.lat]);
-        });
-      }
-
-      if (this instanceof BMap.Polyline) {
-        geom.type = 'LineString';
-        this.getPath().forEach(function (k) {
-          geom.coordinates.push([k.lng, k.lat]);
-        });
-      }
-
-      if (this instanceof BMap.Marker) {
-        geom.type = 'Point';
-
-        var _this$getPosition = this.getPosition(),
-            lng = _this$getPosition.lng,
-            lat = _this$getPosition.lat;
-
-        geom.coordinates = [lng, lat];
-      }
-
-      return feature;
-    };
-
-    /**
-     * BMap.Render
-     */
-    BMap.RenderMapV = function RenderMapV(map, data, option) {
-      this.type = 'mapv';
-      this.map = map;
-      this.dataSet = new mapv.DataSet(data);
-      var _option = option,
-          name = _option.name,
-          prop = _option.prop,
-          renderOption = _option.renderOption,
-          styleMap = _option.styleMap;
-      option = Object.assign({}, BMap.RenderMapV.DEFAULT_OPTION, renderOption, styleMap);
-      this.layer = new mapv.baiduMapLayer(map, this.dataSet, option);
-      var overlay = this.layer.canvasLayer;
-      overlay.map = map;
-      overlay.addToLayer(name);
-      overlay.layer.render = this;
-      this.overlays = [overlay];
-
-      if (name) {
-        overlay.canvas.classList.add(name);
-      }
-    };
-
-    BMap.RenderMapV.prototype.update = function update(data) {
-      this.dataSet.set(data);
-    };
-
-    BMap.RenderMapV.DEFAULT_OPTION = {
-      strokeStyle: 'green',
-      fillStyle: 'rgba(255,255,255,0.5)',
-      shadowBlur: 0,
-      methods: {
-        click: null
-      },
-      lineWidth: 3,
-      draw: 'simple'
     };
 
     function _typeof(obj) {
@@ -323,6 +178,183 @@
     function _nonIterableSpread() {
       throw new TypeError("Invalid attempt to spread non-iterable instance");
     }
+
+    /**
+     * Util
+     */
+    function addEvent(overlay, option) {
+      var onclick = option.onclick,
+          ondblclick = option.ondblclick,
+          dbldel = option.dbldel,
+          confirmdel = option.confirmdel;
+
+      if (onclick && typeof onclick === 'function') {
+        overlay.addEventListener('click', function (e) {
+          onclick.call(this, e);
+        });
+      } // 双击删除
+      // confirmdel 是否提示
+
+
+      if (dbldel && !ondblclick) {
+        ondblclick = function ondblclick(e) {
+          if (confirmdel && confirm('确认删除？')) {
+            this.map.removeOverlay(this);
+            return false;
+          }
+
+          if (!confirmdel) {
+            this.map.removeOverlay(this);
+          }
+        };
+      }
+
+      if (ondblclick && typeof ondblclick === 'function') {
+        overlay.addEventListener('dblclick', function (event) {
+          ondblclick.call(this, event);
+          stopBubble(event);
+        });
+      }
+    }
+
+    function getEvent(event) {
+      return window.event || event;
+    }
+
+    function stopBubble(event) {
+      event = getEvent(event);
+      event.stopPropagation ? event.stopPropagation() : event.cancelBubble = true;
+    }
+
+    var DEFAULT_FEATURE_NAME = 'tmp';
+    /**
+     * 开启双击删除操作
+     * @return {[type]} [description]
+     */
+
+    BMap.Overlay.prototype.enableDoubleClickDel = function () {
+      var option = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
+        confirmdel: true
+      };
+      addEvent(this, _objectSpread({
+        dbldel: true
+      }, option));
+    };
+    /**
+     * add overlay to a layer
+     * @param {Layer | object} Layer or option that has name
+     */
+
+
+    BMap.Overlay.prototype.addToLayer = function () {
+      var option = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
+        name: DEFAULT_FEATURE_NAME,
+        alias: ''
+      };
+      var layer;
+
+      if (option instanceof BMap.Layer) {
+        layer = option;
+      } else {
+        var name = option.name,
+            alias = option.alias;
+        layer = this.map.layers[name];
+
+        if (!layer) {
+          layer = new BMap.Layer(this.map, option);
+        }
+      }
+
+      this.layer = layer;
+      layer.add(this);
+      return this;
+    };
+    /**
+     * overlay to geojson
+     * @return {object} geojson object
+     */
+
+
+    BMap.Overlay.prototype.toGeoJSON = function () {
+      var geom = {
+        "type": "",
+        "coordinates": []
+      };
+      var feature = {
+        type: 'Feature',
+        properties: {},
+        geometry: geom
+      };
+
+      if (this instanceof BMap.Polygon) {
+        geom.type = 'Polygon';
+        geom.coordinates = [[]];
+        this.getPath().forEach(function (k) {
+          geom.coordinates[0].push([k.lng, k.lat]);
+        });
+      }
+
+      if (this instanceof BMap.Polyline) {
+        geom.type = 'LineString';
+        this.getPath().forEach(function (k) {
+          geom.coordinates.push([k.lng, k.lat]);
+        });
+      }
+
+      if (this instanceof BMap.Marker) {
+        geom.type = 'Point';
+
+        var _this$getPosition = this.getPosition(),
+            lng = _this$getPosition.lng,
+            lat = _this$getPosition.lat;
+
+        geom.coordinates = [lng, lat];
+      }
+
+      return feature;
+    };
+
+    /**
+     * BMap.Render
+     */
+    BMap.RenderMapV = function RenderMapV(map, data, option) {
+      this.type = 'mapv';
+      this.map = map;
+      this.dataSet = new mapv.DataSet(data);
+      var _option = option,
+          name = _option.name,
+          prop = _option.prop,
+          renderOption = _option.renderOption,
+          styleMap = _option.styleMap;
+      option = Object.assign({}, BMap.RenderMapV.DEFAULT_OPTION, renderOption, styleMap);
+      this.layer = new mapv.baiduMapLayer(map, this.dataSet, option);
+      var overlay = this.layer.canvasLayer;
+      overlay.map = map;
+      overlay.addToLayer({
+        name: name
+      });
+      overlay.layer.render = this;
+      this.overlays = [overlay];
+
+      if (name) {
+        overlay.canvas.classList.add(name);
+      }
+    };
+
+    BMap.RenderMapV.prototype.update = function update(data) {
+      this.dataSet.set(data);
+    };
+
+    BMap.RenderMapV.DEFAULT_OPTION = {
+      strokeStyle: 'green',
+      fillStyle: 'rgba(255,255,255,0.5)',
+      shadowBlur: 0,
+      methods: {
+        click: null
+      },
+      lineWidth: 3,
+      draw: 'simple'
+    };
 
     var BPt = BMap.Point;
     var DEFAULT_FEATURE_NAME$1 = 'tmp';

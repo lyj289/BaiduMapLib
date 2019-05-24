@@ -6,9 +6,12 @@ let uid = 0;
 BMap.Layer = function Layer(map, option = {}) {
     this.id = uid++;
     this.overlays = [];
-    let {name, alias, show} = option;
+    let {name, alias, displayInSwitcher} = option;
     this.name = name || `Layer${this.id}`;
-    this.show = show || true
+    this.displayInSwitcher = true;
+    if ('displayInSwitcher' in option) {
+        this.displayInSwitcher = displayInSwitcher;
+    }
     if (alias) {
         this.alias = alias;
     }
@@ -30,8 +33,15 @@ BMap.Layer.prototype.show = function(overlay) {
 }
 
 BMap.Layer.prototype.remove = function(overlay) {
-    // TODO
+    this.map.removeOverlay(overlay);
+    this._updateIndex(overlay);
 }
+
+// todo, add async promise 
+BMap.Layer.prototype._updateIndex = function(overlay) {
+    this.overlays = this.overlays.filter(k => k !== overlay)
+}
+
 BMap.Layer.prototype.clear = function() {
     let map = this.map
     this.overlays.forEach(k => {

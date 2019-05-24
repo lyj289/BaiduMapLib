@@ -1,5 +1,29 @@
 Changelog
 =================
+## TODO
+- Render扩展，如zrender, webgl
+- MapvRender，click获取geo属性
+- demo示例，引入[licia](https://licia.liriliri.io/)，一个很棒的常见集合方法
+- add test
+
+## 1.1.3 (2019-05-13)
+
+### bug fix
+- add util event
+- fix overlya.enableDoubleClickDel bug
+- fix MapvRender addlayer bug
+- update overlay.addToLayer, can receive layer param
+
+## 1.1.0 (2019-04-29)
+
+### API Add
+
+- Map.js 扩展map实例方法
+    + map.circle 绘圆
+
+- BMap.Layer 
+    + show
+    + hide
 
 ## 0.1.0 (2019-04-27)
 
@@ -22,16 +46,3 @@ First version Done!
     + add
     + remove
     + clear
-
-## 1.1.0 (2019-04-29)
-
-### API Add
-
-- Map.js 扩展map实例方法
-    + map.circle 绘圆
-
-- BMap.Layer 
-    + show
-    + hide
-
-by liyujian
